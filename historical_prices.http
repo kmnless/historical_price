@@ -1,0 +1,6 @@
+@historical_prices_HostAddress = http://localhost:5113
+
+GET {{historical_prices_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

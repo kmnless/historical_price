@@ -1,0 +1,60 @@
+# Build results
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# Rider and VS Code
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ASP.NET Core
+wwwroot/dist/
+wwwroot/node_modules/
+.env
+.env.*
+
+# Entity Framework Migrations build artifacts
+Migrations/
+
+# Database files
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Logs
+logs/
+*.log
+
+# Docker
+**/.dockerignore
+docker-compose.override.yml
+*.pid
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Others
+*.swp
+*.bak
+*.tmp
+_ReSharper*/
