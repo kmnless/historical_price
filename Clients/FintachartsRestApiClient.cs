@@ -117,6 +117,45 @@ public class FintachartsRestApiClient
             throw;
         }
     }
+    public async Task<BarPageDTO> GetLatestBarsAsync(Guid instrumentId, string provider, int interval, Periodicity periodicity, int barsCount = 1)
+    {
+        try
+        {
+            var token = await _authService.GetAccessTokenAsync();
+
+            var urlBuilder = new StringBuilder("/api/bars/v1/bars/count-back?");
+            urlBuilder.Append($"instrumentId={instrumentId}&");
+            urlBuilder.Append($"provider={Uri.EscapeDataString(provider)}&");
+            urlBuilder.Append($"interval={interval}&");
+            urlBuilder.Append($"periodicity={periodicity.ToString().ToLower()}&");
+            urlBuilder.Append($"barsCount={barsCount}");
+
+            var url = urlBuilder.ToString();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError($"Failed to get latest bars. Status: {response.StatusCode}, Response: {errorContent}");
+                throw new ApplicationException("Unable to fetch latest bars");
+            }
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+
+            return (await JsonSerializer.DeserializeAsync<BarPageDTO>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }))!;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetLatestBarsAsync");
+            throw;
+        }
+    }
+
+
     internal class MarketAssetConverter : JsonConverter<MarketAsset>
     {
         public override MarketAsset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

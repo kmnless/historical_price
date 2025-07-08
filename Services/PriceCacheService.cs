@@ -168,4 +168,12 @@ public class PriceCacheService
         return await query.ToListAsync();
     }
 
+    public async Task<AssetPrice?> GetLatestPriceAsync(Guid instrumentId, string provider)
+    {
+        return await _db.AssetPrices
+            .Where(p => p.InstrumentId == instrumentId && p.Provider == provider)
+            .OrderByDescending(p => p.DateTime)
+            .FirstOrDefaultAsync();
+    }
+
 }

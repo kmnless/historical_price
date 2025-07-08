@@ -53,4 +53,35 @@ public class PriceService
         var allPrices = await _priceCacheService.GetPriceAsync(instrumentId, provider, startDate, endDate);
         return _aggregator.Aggregate(allPrices, periodicity);
     }
+
+    public async Task<AssetPrice?> GetCurrentPrice(Guid instrumentId, string provider)
+    {
+        var cachedPrice = await _priceCacheService.GetLatestPriceAsync(instrumentId, provider);
+        if (cachedPrice != null && (DateTimeOffset.UtcNow - cachedPrice.DateTime) < TimeSpan.FromHours(2))
+        {
+            return cachedPrice;
+        }
+
+        var response = await _apiClient.GetLatestBarsAsync(instrumentId, provider, 1, Periodicity.HOUR, 1);
+
+        if (response?.Data == null || !response.Data.Any())
+        {
+            // no data from API -> returns what we have in cache or null
+            return cachedPrice;
+        }
+
+        var latestBar = response.Data.First();
+
+        return new AssetPrice
+        {
+            InstrumentId = instrumentId,
+            Provider = provider,
+            DateTime = latestBar.Timestamp.UtcDateTime,
+            Open = latestBar.Open,
+            High = latestBar.High,
+            Low = latestBar.Low,
+            Close = latestBar.Close
+        };
+    }
+
 }

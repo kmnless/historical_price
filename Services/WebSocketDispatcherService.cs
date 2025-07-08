@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using historical_prices.Clients; // для FintachartsWebSocketApiClient
+using historical_prices.Clients;
 
 namespace historical_prices.Services;
 
