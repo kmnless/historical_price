@@ -1,5 +1,6 @@
 using historical_prices.Clients;
 using historical_prices.Data;
+using historical_prices.Models;
 using historical_prices.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,7 +39,12 @@ builder.Services.AddScoped<PriceService>();
 builder.Services.AddScoped<PriceCacheService>();
 builder.Services.AddSingleton<PriceAggregator>();
 
-builder.Services.AddHostedService<FintachartsWebSocketClientService>();
+builder.Services.AddSingleton<FintachartsWebSocketApiClient>();
+builder.Services.Configure<FintachartsWebSocketOptions>(
+    builder.Configuration.GetSection("Fintacharts:WebSocket"));
+builder.Services.AddSingleton<SubscriptionManagerService>();
+builder.Services.AddSingleton<WebSocketDispatcherService>();
+builder.Services.AddHostedService<FintachartsWebSocketHostedService>();
 
 var app = builder.Build();
 
@@ -48,6 +54,23 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseWebSockets();
+
+app.Map("/ws", async context =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+
+        var dispatcher = context.RequestServices.GetRequiredService<WebSocketDispatcherService>();
+        await dispatcher.HandleClientAsync(webSocket);
+    }
+    else
+    {
+        context.Response.StatusCode = 400;
+    }
+});
 
 app.UseHttpsRedirection();
 

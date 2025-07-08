@@ -2,7 +2,6 @@
 using historical_prices.Data;
 using historical_prices.DTOs;
 using historical_prices.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace historical_prices.Services;
 
@@ -54,6 +53,4 @@ public class PriceService
         var allPrices = await _priceCacheService.GetPriceAsync(instrumentId, provider, startDate, endDate);
         return _aggregator.Aggregate(allPrices, periodicity);
     }
-
-
 }
