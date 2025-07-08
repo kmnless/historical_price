@@ -67,7 +67,6 @@ public class WebSocketDispatcherService
                     _subscriptionManager.Subscribe(connectionId, command.InstrumentId.ToString());
                     _logger.LogInformation($"Connection {connectionId} subscribed to {command.InstrumentId}");
 
-                    // Вызов подписки на внешний API
                     await _fintachartsClient.SubscribeAsync(command.InstrumentId, command.Provider, command.Kinds);
                 }
                 else if (command != null && !command.Subscribe && command.InstrumentId != Guid.Empty)
@@ -75,8 +74,6 @@ public class WebSocketDispatcherService
                     _subscriptionManager.Unsubscribe(connectionId, command.InstrumentId.ToString());
                     _logger.LogInformation($"Connection {connectionId} unsubscribed from {command.InstrumentId}");
 
-                    // Тут можно реализовать отписку, если API поддерживает
-                    // await _fintachartsClient.UnsubscribeAsync(command.InstrumentId, command.Provider, command.Kinds);
                 }
             }
             catch (Exception ex)
